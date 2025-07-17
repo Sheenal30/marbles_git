@@ -1,153 +1,124 @@
 /* RESET
    -------------------------------------------------- */
-*{
-  box-sizing:border-box;  /* include borders in width/height */
-  margin:0;
-  padding:0;
-}
+*{box-sizing:border-box;margin:0;padding:0;}
 
-/* PAGE
-   -------------------------------------------------- */
+/* FUN GRAFFITI BACKGROUND (gradient + transparent texture) */
 body{
-  font-family:system-ui,Roboto,sans-serif;                 /* default font */
-  background:#231942;                                     /* deep casino purple */
+  font-family:system-ui,Roboto,sans-serif;
+  background:
+    radial-gradient(circle at 20% 20%,#d9cff0 0%,#d9cff0 60%),          /* pastel purple */
+    url("https://www.transparenttextures.com/patterns/graffiti.png"); /* free graffiti texture */
+  background-blend-mode:overlay;      /* mix gradient + texture */
   color:#eee;
-  display:flex;
-  justify-content:center;
-  padding:2rem;
-  overflow-x:hidden;                                      /* particles can spawn off-screen */
+  display:flex;justify-content:center;
+  padding:5rem;
+  overflow-x:hidden;
+  transition:background 0.25s;
 }
 
-/* CARD
-   -------------------------------------------------- */
+/* CARD */
 .container{
-  width:420px;
-  max-width:90vw;
-  background:#1e1e2f;                                     /* darker card */
+  width:420px;max-width:90vw;
+  background:#08042b;
   border-radius:1rem;
   padding:2rem;
-  box-shadow:0 0 25px rgba(255,215,0,0.3);                /* golden glow */
-  text-align:center;                                      /* centre everything */
+  box-shadow:0 0 25px rgba(255,215,0,0.35);
+  text-align:center;
 }
 
-/* HEADING
-   -------------------------------------------------- */
+/* HEADING */
 h1{
-  font-family:"Luckiest Guy",cursive;                     /* flashy casino font */
+  font-family:"Bungee Shade","Luckiest Guy",cursive;
   font-size:2rem;
-  color:#ffd700;                                          /* gold */
-  text-shadow:0 0 8px #f5d742;                            /* glowing text */
+  word-spacing:0.2em;
+  color:#ffbb00;
+  text-shadow:0 0 3px #f5d742,0 0 5px #ffbb00;
   margin-bottom:1.5rem;
 }
 
-/* LABELS & INPUTS
-   -------------------------------------------------- */
+/* FORM */
 label{
-  display:flex;
-  flex-direction:column;
-  gap:0.25rem;
+  display:flex;flex-direction:column;gap:0.25rem;
   margin-bottom:1rem;
-  font-weight:600;
-  color:#ffd700;
+  font-weight:600;color:#ffd700;
 }
-
 input{
-  padding:0.5rem 0.75rem;
-  border:1px solid #555;                                  /* subtle border */
-  border-radius:0.5rem;
-  font-size:1rem;
-  background:#2b2b44;                                     /* dark field */
-  color:#fff;
+  padding:0.5rem 0.75rem;border:1px solid #555;border-radius:0.5rem;
+  font-size:1rem;background:#2b2b44;color:#fff;
 }
 
-/* BUTTONS
-   -------------------------------------------------- */
+/* BUTTONS */
 button{
-  padding:0.6rem 1rem;
-  border:none;
-  border-radius:0.5rem;
-  font-size:1rem;
-  font-weight:700;
-  cursor:pointer;
-  background:#4c6ef5;                                     /* base blue */
-  color:#fff;
+  padding:0.6rem 1rem;border:none;border-radius:0.5rem;
+  font-size:1rem;font-weight:700;cursor:pointer;
+  background:#4c6ef5;color:#fff;
   transition:background 0.15s,transform 0.1s;
 }
-button:hover{background:#5d7dff;}                         /* brighter on hover */
-button:active{background:#3d55e0; transform:scale(0.97);} /* darker & shrink on press */
-
-button.secondary{
-  background:#666; color:#eee;
-}
+button:hover{background:#5d7dff;}
+button:active{background:#3d55e0;transform:scale(0.97);}
+button.secondary{background:#666;color:#eee;}
 button.secondary:hover{background:#777;}
 button.secondary:active{background:#555;}
 
-/* UTILITY
-   -------------------------------------------------- */
+/* FLASH OVERLAY */
+.flash{
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.5);z-index:1000;opacity:0;pointer-events:none;
+  transition:opacity 0.25s;
+}
+.flash.show{opacity:1;pointer-events:auto;}
+.flash-content{text-align:center;}
+.flash-content span{
+  font-family:"Bungee Shade","Luckiest Guy",cursive;
+  font-size:3rem;display:block;margin-bottom:1rem;
+}
+#playAgainBtn{
+  background:#ffbb00;color:#000;padding:0.5rem 1.5rem;font-size:1.2rem;
+}
+#playAgainBtn:hover{background:#ffd84d;}
+#playAgainBtn:active{background:#e6a800;}
+
+/* HIDE UTILITY */
 .hidden{display:none;}
 
-/* GAME LOG
-   -------------------------------------------------- */
-#log{
-  margin-top:1.5rem;
-  max-height:260px;
-  overflow-y:auto;
-  border-top:2px solid #444;
-  padding-top:1rem;
-}
+/* LOG AREA */
+#log{margin-top:1.5rem;max-height:260px;overflow-y:auto;border-top:2px solid #444;padding-top:1rem;}
+#log p{margin-bottom:1rem;line-height:1.4;animation:fadeIn 0.3s}
 
-#log p{
-  margin-bottom:1rem;                                     /* more distance between lines */
-  animation:fadeIn 0.3s ease;
-  line-height:1.4;
-}
+/* WIN / LOSE LINE COLOURS */
+.win-green {background:#1b5e20;border-left:5px solid #2ecc71;padding-left:0.5rem;}
+.win-black {background:#0d2919;border-left:5px solid #00b34d;padding-left:0.5rem;}
+.lose-red {background:#7a1f1f;border-left:5px solid #e74c3c;padding-left:0.5rem;}
+.lose-white{background:#3b1515;border-left:5px solid #ff3b3b;padding-left:0.5rem;}
 
-/* COLOURED OUTCOME BARS
-   -------------------------------------------------- */
-/* light green win */
-.win-green{background:#143d2c; border-left:5px solid #2ecc71; padding-left:0.5rem;}
-/* darker green (bigger win) */
-.win-black{background:#0e291e; border-left:5px solid #00b34d; padding-left:0.5rem;}
-/* light red loss */
-.lose-red{background:#4e2020; border-left:5px solid #e74c3c; padding-left:0.5rem;}
-/* darker red (bigger loss) */
-.lose-white{background:#3b1515; border-left:5px solid #ff3b3b; padding-left:0.5rem;}
-
-/* SIMPLE “CONFETTI” & “RAIN” PARTICLES
-   -------------------------------------------------- */
-/* confetti squares */
+/* CONFETTI & RAIN */
 .confetti{
-  position:fixed;
-  top:-1rem;
-  width:8px; height:8px;
-  background:hsl(calc(360*var(--i)),80%,60%);             /* random colour */
-  animation:confFall 1.5s linear forwards;
-  pointer-events:none;
+  position:fixed;z-index:999;pointer-events:none;
+  animation:confScatter 1.5s ease-out forwards;
 }
-/* raindrop lines */
 .rain{
-  position:fixed;
-  top:-1rem;
-  width:2px; height:12px;
-  background:#5dade2;
-  animation:rainFall 1.2s linear forwards;
-  pointer-events:none;
-  opacity:0.7;
+  position:fixed;           /* fall across viewport */
+  top:-2rem;                /* spawn slightly above screen */
+  width:3px; height:22px;   /* thicker, longer streak */
+  background:#5dade2;       /* blue drop */
+  opacity:0.75;
+  z-index:998;              /* below confetti, above card */
+  pointer-events:none;      /* ignore clicks */
+  transform:rotate(18deg);  /* slanted look */
+  animation:rainFall var(--dur) linear forwards;
 }
-
-/* random rotation for confetti */
-.confetti::after{content:'';} /* prevents empty warning */
 
 /* keyframes */
-@keyframes confFall{
-  to{transform:translateY(100vh) rotate(360deg); opacity:0;}
+@keyframes confScatter{
+  from{transform:translate(-50%,-50%) rotate(0deg);opacity:1;}
+  to  {transform:translate(var(--dx),var(--dy)) rotate(720deg);opacity:0;}
 }
 @keyframes rainFall{
-  to{transform:translateY(100vh); opacity:0;}
+  to{
+    transform:
+      translate(var(--dx), 100vh)   /* drift sideways as it drops */
+      rotate(18deg);                /* maintain slant */
+    opacity:0;
+  }
 }
-
-/* FADE-IN FOR LOG LINES */
-@keyframes fadeIn{
-  from{opacity:0;}
-  to{opacity:1;}
-}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
