@@ -1,73 +1,112 @@
-/* Reset-ish */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  background: #f5f7fb;
-  color: #222;
-  display: flex;
-  justify-content: center;
-  padding: 2rem;
+/* RESET / BASE
+   -------------------------------------------------- */
+* {                /* include border & padding in element's box */
+  box-sizing: border-box; /* keeps layouts predictable */
+  margin: 0;             /* remove default outer spacing */
+  padding: 0;            /* remove default inner spacing */
 }
 
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; /* clean default font */
+  background: linear-gradient(135deg,#f6d365,#fda085); /* soft colourful gradient background */
+  color: #222;                                         /* primary text colour */
+  display: flex;                                       /* center the card */
+  justify-content: center;                             /* horizontally centre */
+  padding: 2rem;                                       /* breathing room around card */
+}
+
+/* CARD-LIKE CONTAINER */
 .container {
-  width: 420px;
-  max-width: 90vw;
-  background: #fff;
-  border-radius: 1rem;
-  padding: 2rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  width: 420px;                /* fixed but narrow card */
+  max-width: 90vw;             /* responsive on small screens */
+  background: #fff;            /* white card background for contrast */
+  border-radius: 1rem;         /* rounded corners */
+  padding: 2rem;               /* inner space */
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08); /* soft drop-shadow */
 }
 
 h1 {
-  text-align: center;
-  margin-bottom: 1.5rem;
+  text-align: center;          /* center heading text */
+  margin-bottom: 1.5rem;       /* space below heading */
 }
 
+/* FORM ELEMENTS */
 label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-bottom: 1rem;
-  font-weight: 500;
+  display: flex;               /* stack label text & field vertically */
+  flex-direction: column;      /* vertical stacking */
+  gap: 0.25rem;                /* tiny gap between label and input */
+  margin-bottom: 1rem;         /* space after each field group */
+  font-weight: 500;            /* slightly bolder label */
 }
 
 input {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
-  font-size: 1rem;
+  padding: 0.5rem 0.75rem;     /* touch-friendly padding */
+  border: 1px solid #ccc;      /* subtle border */
+  border-radius: 0.5rem;       /* rounded corners */
+  font-size: 1rem;             /* readable font */
 }
 
+/* BUTTONS */
 button {
-  padding: 0.6rem 1rem;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  background: royalblue;
-  color: #fff;
-  transition: background 0.2s;
+  padding: 0.6rem 1rem;        /* internal space */
+  border: none;                /* remove default border */
+  border-radius: 0.5rem;       /* rounded button */
+  font-size: 1rem;             /* readable text */
+  font-weight: 600;            /* bold label */
+  cursor: pointer;             /* pointer cursor to show it’s clickable */
+  background: #4c6ef5;         /* base blue colour */
+  color: #fff;                 /* white text for contrast */
+  transition:                   /* smooth colour & click feedback */
+    background 0.15s ease,     /* fade background */
+    transform 0.1s ease;       /* button press effect */
 }
 
-button:hover { background: midnightblue; }
+button:hover {                 /* WHEN MOUSE HOVERS */
+  background: #5d7dff;         /* slightly brighter blue */
+}
 
+button:active {                /* WHEN BUTTON IS PRESSED */
+  background: #3d55e0;         /* slightly darker for pressed feel */
+  transform: scale(0.97);      /* tiny shrink to mimic physical press */
+}
+
+/* SECONDARY (EXIT) BUTTON VARIANTS */
 button.secondary {
-  background: #ddd;
-  color: #333;
+  background: #ddd;            /* neutral grey background */
+  color: #333;                 /* darker text */
 }
 
-button.secondary:hover { background: #c4c4c4; }
+button.secondary:hover {
+  background: #e5e5e5;         /* brighten on hover */
+}
 
-.hidden { display: none; }
+button.secondary:active {
+  background: #c4c4c4;         /* darken on press */
+}
 
+/* HIDE/SHOW SWITCHER */
+.hidden { display: none; }     /* simple hide utility */
+
+/* GAME LOG STYLES */
 #log {
-  margin-top: 1.5rem;
-  max-height: 260px;
-  overflow-y: auto;
-  border-top: 1px solid #eee;
-  padding-top: 1rem;
+  margin-top: 1.5rem;          /* space above log */
+  max-height: 260px;           /* keep the log scrollable */
+  overflow-y: auto;            /* vertical scroll if needed */
+  border-top: 2px dashed #eee; /* decorative top border */
+  padding-top: 1rem;           /* space below border */
 }
 
-#log p { margin-bottom: 0.5rem; }
+#log p {                       /* each log line */
+  margin-bottom: 0.5rem;       /* gap between lines */
+  animation: fadeIn 0.3s ease; /* subtle fade entrance */
+}
+
+/* COLOUR FEEDBACK FOR WIN / LOSE LINES */
+.win  { background:#e6ffed; border-left:4px solid #2ecc71; padding-left:0.5rem; } /* green tint */
+.lose { background:#ffeaea; border-left:4px solid #e74c3c; padding-left:0.5rem; } /* red tint */
+
+/* ANIMATION KEYFRAMES */
+@keyframes fadeIn {
+  from { opacity: 0; }         /* start invisible */
+  to   { opacity: 1; }         /* end fully visible */
+}
