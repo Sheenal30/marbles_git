@@ -1,112 +1,153 @@
-/* RESET / BASE
+/* RESET
    -------------------------------------------------- */
-* {                /* include border & padding in element's box */
-  box-sizing: border-box; /* keeps layouts predictable */
-  margin: 0;             /* remove default outer spacing */
-  padding: 0;            /* remove default inner spacing */
+*{
+  box-sizing:border-box;  /* include borders in width/height */
+  margin:0;
+  padding:0;
 }
 
-body {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; /* clean default font */
-  background: linear-gradient(135deg,#f6d365,#fda085); /* soft colourful gradient background */
-  color: #222;                                         /* primary text colour */
-  display: flex;                                       /* center the card */
-  justify-content: center;                             /* horizontally centre */
-  padding: 2rem;                                       /* breathing room around card */
+/* PAGE
+   -------------------------------------------------- */
+body{
+  font-family:system-ui,Roboto,sans-serif;                 /* default font */
+  background:#231942;                                     /* deep casino purple */
+  color:#eee;
+  display:flex;
+  justify-content:center;
+  padding:2rem;
+  overflow-x:hidden;                                      /* particles can spawn off-screen */
 }
 
-/* CARD-LIKE CONTAINER */
-.container {
-  width: 420px;                /* fixed but narrow card */
-  max-width: 90vw;             /* responsive on small screens */
-  background: #fff;            /* white card background for contrast */
-  border-radius: 1rem;         /* rounded corners */
-  padding: 2rem;               /* inner space */
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08); /* soft drop-shadow */
+/* CARD
+   -------------------------------------------------- */
+.container{
+  width:420px;
+  max-width:90vw;
+  background:#1e1e2f;                                     /* darker card */
+  border-radius:1rem;
+  padding:2rem;
+  box-shadow:0 0 25px rgba(255,215,0,0.3);                /* golden glow */
+  text-align:center;                                      /* centre everything */
 }
 
-h1 {
-  text-align: center;          /* center heading text */
-  margin-bottom: 1.5rem;       /* space below heading */
+/* HEADING
+   -------------------------------------------------- */
+h1{
+  font-family:"Luckiest Guy",cursive;                     /* flashy casino font */
+  font-size:2rem;
+  color:#ffd700;                                          /* gold */
+  text-shadow:0 0 8px #f5d742;                            /* glowing text */
+  margin-bottom:1.5rem;
 }
 
-/* FORM ELEMENTS */
-label {
-  display: flex;               /* stack label text & field vertically */
-  flex-direction: column;      /* vertical stacking */
-  gap: 0.25rem;                /* tiny gap between label and input */
-  margin-bottom: 1rem;         /* space after each field group */
-  font-weight: 500;            /* slightly bolder label */
+/* LABELS & INPUTS
+   -------------------------------------------------- */
+label{
+  display:flex;
+  flex-direction:column;
+  gap:0.25rem;
+  margin-bottom:1rem;
+  font-weight:600;
+  color:#ffd700;
 }
 
-input {
-  padding: 0.5rem 0.75rem;     /* touch-friendly padding */
-  border: 1px solid #ccc;      /* subtle border */
-  border-radius: 0.5rem;       /* rounded corners */
-  font-size: 1rem;             /* readable font */
+input{
+  padding:0.5rem 0.75rem;
+  border:1px solid #555;                                  /* subtle border */
+  border-radius:0.5rem;
+  font-size:1rem;
+  background:#2b2b44;                                     /* dark field */
+  color:#fff;
 }
 
-/* BUTTONS */
-button {
-  padding: 0.6rem 1rem;        /* internal space */
-  border: none;                /* remove default border */
-  border-radius: 0.5rem;       /* rounded button */
-  font-size: 1rem;             /* readable text */
-  font-weight: 600;            /* bold label */
-  cursor: pointer;             /* pointer cursor to show it’s clickable */
-  background: #4c6ef5;         /* base blue colour */
-  color: #fff;                 /* white text for contrast */
-  transition:                   /* smooth colour & click feedback */
-    background 0.15s ease,     /* fade background */
-    transform 0.1s ease;       /* button press effect */
+/* BUTTONS
+   -------------------------------------------------- */
+button{
+  padding:0.6rem 1rem;
+  border:none;
+  border-radius:0.5rem;
+  font-size:1rem;
+  font-weight:700;
+  cursor:pointer;
+  background:#4c6ef5;                                     /* base blue */
+  color:#fff;
+  transition:background 0.15s,transform 0.1s;
+}
+button:hover{background:#5d7dff;}                         /* brighter on hover */
+button:active{background:#3d55e0; transform:scale(0.97);} /* darker & shrink on press */
+
+button.secondary{
+  background:#666; color:#eee;
+}
+button.secondary:hover{background:#777;}
+button.secondary:active{background:#555;}
+
+/* UTILITY
+   -------------------------------------------------- */
+.hidden{display:none;}
+
+/* GAME LOG
+   -------------------------------------------------- */
+#log{
+  margin-top:1.5rem;
+  max-height:260px;
+  overflow-y:auto;
+  border-top:2px solid #444;
+  padding-top:1rem;
 }
 
-button:hover {                 /* WHEN MOUSE HOVERS */
-  background: #5d7dff;         /* slightly brighter blue */
+#log p{
+  margin-bottom:1rem;                                     /* more distance between lines */
+  animation:fadeIn 0.3s ease;
+  line-height:1.4;
 }
 
-button:active {                /* WHEN BUTTON IS PRESSED */
-  background: #3d55e0;         /* slightly darker for pressed feel */
-  transform: scale(0.97);      /* tiny shrink to mimic physical press */
+/* COLOURED OUTCOME BARS
+   -------------------------------------------------- */
+/* light green win */
+.win-green{background:#143d2c; border-left:5px solid #2ecc71; padding-left:0.5rem;}
+/* darker green (bigger win) */
+.win-black{background:#0e291e; border-left:5px solid #00b34d; padding-left:0.5rem;}
+/* light red loss */
+.lose-red{background:#4e2020; border-left:5px solid #e74c3c; padding-left:0.5rem;}
+/* darker red (bigger loss) */
+.lose-white{background:#3b1515; border-left:5px solid #ff3b3b; padding-left:0.5rem;}
+
+/* SIMPLE “CONFETTI” & “RAIN” PARTICLES
+   -------------------------------------------------- */
+/* confetti squares */
+.confetti{
+  position:fixed;
+  top:-1rem;
+  width:8px; height:8px;
+  background:hsl(calc(360*var(--i)),80%,60%);             /* random colour */
+  animation:confFall 1.5s linear forwards;
+  pointer-events:none;
+}
+/* raindrop lines */
+.rain{
+  position:fixed;
+  top:-1rem;
+  width:2px; height:12px;
+  background:#5dade2;
+  animation:rainFall 1.2s linear forwards;
+  pointer-events:none;
+  opacity:0.7;
 }
 
-/* SECONDARY (EXIT) BUTTON VARIANTS */
-button.secondary {
-  background: #ddd;            /* neutral grey background */
-  color: #333;                 /* darker text */
+/* random rotation for confetti */
+.confetti::after{content:'';} /* prevents empty warning */
+
+/* keyframes */
+@keyframes confFall{
+  to{transform:translateY(100vh) rotate(360deg); opacity:0;}
+}
+@keyframes rainFall{
+  to{transform:translateY(100vh); opacity:0;}
 }
 
-button.secondary:hover {
-  background: #e5e5e5;         /* brighten on hover */
-}
-
-button.secondary:active {
-  background: #c4c4c4;         /* darken on press */
-}
-
-/* HIDE/SHOW SWITCHER */
-.hidden { display: none; }     /* simple hide utility */
-
-/* GAME LOG STYLES */
-#log {
-  margin-top: 1.5rem;          /* space above log */
-  max-height: 260px;           /* keep the log scrollable */
-  overflow-y: auto;            /* vertical scroll if needed */
-  border-top: 2px dashed #eee; /* decorative top border */
-  padding-top: 1rem;           /* space below border */
-}
-
-#log p {                       /* each log line */
-  margin-bottom: 0.5rem;       /* gap between lines */
-  animation: fadeIn 0.3s ease; /* subtle fade entrance */
-}
-
-/* COLOUR FEEDBACK FOR WIN / LOSE LINES */
-.win  { background:#e6ffed; border-left:4px solid #2ecc71; padding-left:0.5rem; } /* green tint */
-.lose { background:#ffeaea; border-left:4px solid #e74c3c; padding-left:0.5rem; } /* red tint */
-
-/* ANIMATION KEYFRAMES */
-@keyframes fadeIn {
-  from { opacity: 0; }         /* start invisible */
-  to   { opacity: 1; }         /* end fully visible */
+/* FADE-IN FOR LOG LINES */
+@keyframes fadeIn{
+  from{opacity:0;}
+  to{opacity:1;}
 }
