@@ -1,201 +1,221 @@
 /* --------------------------------------------------
-   Marble bag & multipliers
+   1. Marble bag & multipliers
 -------------------------------------------------- */
+// array of marbles: 3 red, 5 green, 1 black, 1 white
 const BAG = [
   ...Array(3).fill("red"),
   ...Array(5).fill("green"),
   "black",
   "white",
 ];
-const MULTIPLIERS = { green: 2, red: -1, black: 10, white: -5 };
+// how much you win/lose per color
+const MULTIPLIERS = {
+  green: 2,  // double your bet
+  red: -1,   // lose your bet
+  black: 10, // huge win
+  white: -5, // big loss
+};
 
 /* --------------------------------------------------
-   DOM helpers
+   2. DOM helpers (grab elements once)
 -------------------------------------------------- */
 const $ = (id) => document.getElementById(id);
-const setupSection   = $("setup");
-const bettingSection = $("betting");
-const startBtn       = $("startBtn");
-const betBtn         = $("betBtn");
-const exitBtn        = $("exitBtn");
-const statusEl       = $("status");
-const logEl          = $("log");
-const betInput       = $("bet");
-const flashEl        = $("flashMessage");
-const flashText      = $("flashText");
-const playAgainBtn   = $("playAgainBtn");
-const startGoldInput = $("startGold");
-const drawsInput     = $("draws");
+const setupSection   = $("setup");       // where you set gold/draws
+const bettingSection = $("betting");     // betting interface
+const startBtn       = $("startBtn");    // “Start Game” button
+const betBtn         = $("betBtn");      // “Place Bet” button
+const exitBtn        = $("exitBtn");     // “Exit Game” button
+const statusEl       = $("status");      // status text
+const logEl          = $("log");         // log output area
+const betInput       = $("bet");         // bet input field
+const flashEl        = $("flashMessage"); // overlay div
+const flashText      = $("flashText");   // overlay text
+const playAgainBtn   = $("playAgainBtn");// button to restart
+const startGoldInput = $("startGold");   // input for starting gold
+const drawsInput     = $("draws");       // input for number of draws
 
 /* --------------------------------------------------
-   Game state
+   3. Game state variables
 -------------------------------------------------- */
 let goldStart, goldRemaining, drawsTotal, drawIndex = 0;
-const baseBG = getComputedStyle(document.body).background; // remember graffiti bg
+// remember original background for flash effect
+const baseBG = getComputedStyle(document.body).background;
 
 /* --------------------------------------------------
-   Utility: random choice
+   4. Utility: pick random marble
 -------------------------------------------------- */
-const randomMarble = () => BAG[Math.floor(Math.random()*BAG.length)];
+const randomMarble = () =>
+  BAG[Math.floor(Math.random() * BAG.length)];
 
-/* Log helper */
+/* --------------------------------------------------
+   5. Logging helper
+-------------------------------------------------- */
 const log = (msg, cls) => {
+  // append a <p> with message + CSS class, then scroll to bottom
   logEl.innerHTML += `<p class="${cls}">${msg}</p>`;
   logEl.scrollTop = logEl.scrollHeight;
 };
 
 /* --------------------------------------------------
-   Background flash
+   6. Flash background color
 -------------------------------------------------- */
-function flashBG(color){
+function flashBG(color) {
   const body = document.body;
   body.style.transition = "background 0.25s";
-  body.style.background = color;
-  setTimeout(()=> body.style.background = baseBG, 800);
+  body.style.background = color;          // flash color
+  setTimeout(() => {
+    body.style.background = baseBG;       // back to normal
+  }, 800);
 }
 
 /* --------------------------------------------------
-   FINISH / GAME OVER overlay (stays until Play Again)
+   7. Show overlay for end/game over
 -------------------------------------------------- */
-function showFlashMessage(text, color){
-  flashText.textContent = text;
-  flashText.style.color = color;
-  flashEl.classList.remove("hidden");
+function showFlashMessage(text, color) {
+  flashText.textContent = text;           // set “GAME OVER” etc
+  flashText.style.color = color;          // color of text
+  flashEl.classList.remove("hidden");     // reveal overlay
   flashEl.classList.add("show");
-  // Delay focus so the current Enter key event can't immediately retrigger the button
+  // focus the Play Again button so Enter works
   setTimeout(() => {
     playAgainBtn.focus();
   }, 200);
 }
+// hide overlay and reset focus when clicked
 playAgainBtn.onclick = () => {
   flashEl.classList.add("hidden");
   flashEl.classList.remove("show");
-  // focus first field for convenience
   startGoldInput.focus();
 };
 
 /* --------------------------------------------------
-   PARTICLE EFFECTS
+   8. Particle effects: confetti
 -------------------------------------------------- */
-/* Confetti: explode outward from screen centre  */
-const CONFETTI_COLS = ["#ff4757","#fffa65","#1e90ff","#2ed573",
-                       "#ffa502","#ff6b81","#70a1ff","#7bed9f"];
-
-function spawnConfetti(count){
-  for(let i=0;i<count;i++){
+const CONFETTI_COLS = [
+  "#ff4757","#fffa65","#1e90ff","#2ed573",
+  "#ffa502","#ff6b81","#70a1ff","#7bed9f"
+];
+function spawnConfetti(count) {
+  for (let i = 0; i < count; i++) {
     const el = document.createElement("div");
     el.className = "confetti";
-    const size = 6 + Math.random()*10;
+    const size = 6 + Math.random() * 10;
     el.style.width = el.style.height = size + "px";
-    el.style.background = CONFETTI_COLS[Math.floor(Math.random()*CONFETTI_COLS.length)];
-    // start at centre
-    el.style.left = "50vw";
+    el.style.background =
+      CONFETTI_COLS[Math.floor(Math.random() * CONFETTI_COLS.length)];
+    el.style.left = "50vw";  // start center
     el.style.top  = "50vh";
-    // random end offset (–50 to +50 vw / vh)
+    // random end position
     const dx = (Math.random()*100 - 50) + "vw";
     const dy = (Math.random()*100 - 50) + "vh";
     el.style.setProperty('--dx', dx);
     el.style.setProperty('--dy', dy);
-    // circle vs square
-    if(Math.random()>0.5) el.style.borderRadius = "50%";
+    if (Math.random() > 0.5) el.style.borderRadius = "50%";
     document.body.appendChild(el);
-    // cleanup after animation
-    setTimeout(()=>el.remove(), 1800);
+    setTimeout(() => el.remove(), 1800); // clean up
   }
 }
 
 /* --------------------------------------------------
-   GAME FLOW
+   9. Game flow: startGame()
 -------------------------------------------------- */
-function startGame(){
-  goldStart  = Number(startGoldInput.value);
+function startGame() {
+  goldStart  = Number(startGoldInput.value); // read inputs
   drawsTotal = Number(drawsInput.value);
-  if(!goldStart || !drawsTotal) return alert("Enter valid numbers!");
+  // basic validation
+  if (!goldStart || !drawsTotal)
+    return alert("Enter valid numbers!");
 
   goldRemaining = goldStart;
   drawIndex = 1;
-  logEl.innerHTML = "";
+  logEl.innerHTML = "";                     // clear old log
   statusEl.textContent = `You start with ${goldRemaining} gold.`;
 
+  // hide setup, show betting UI
   setupSection.classList.add("hidden");
   bettingSection.classList.remove("hidden");
-  betInput.focus();
+  betInput.focus();                         // jump to bet field
 }
-
+// wire up the Start button
 startBtn.onclick = startGame;
-
-/* ENTER triggers Start Game */
-[startGoldInput, drawsInput].forEach(inp=>{
-  inp.addEventListener("keydown", e=>{
-    if(e.key==="Enter") startGame();
+// allow Enter key in inputs to also start
+[startGoldInput, drawsInput].forEach(inp => {
+  inp.addEventListener("keydown", e => {
+    if (e.key === "Enter") startGame();
   });
 });
 
-/* ENTER triggers Play Again (only when button is focused) */
-playAgainBtn.addEventListener("keydown", e=>{
-  if(e.key === "Enter") playAgainBtn.click();
-});
-
-/* ENTER triggers Place Bet */
-betInput.addEventListener("keydown", e=>{
-  if(e.key==="Enter") playRound();
-});
-
-betBtn.onclick = playRound;
-exitBtn.onclick = endGame;
-
-function playRound(){
-  const bet = Number(betInput.value);
-  if(!bet || bet > goldRemaining || bet <= 0){
+/* --------------------------------------------------
+   10. Betting round: playRound()
+-------------------------------------------------- */
+function playRound() {
+  const bet = Number(betInput.value);       // how much user bets
+  // validation
+  if (!bet || bet > goldRemaining || bet <= 0) {
     return alert("Invalid bet amount.");
   }
 
-  const drawn  = randomMarble();
-  const result = bet * MULTIPLIERS[drawn];
+  const drawn  = randomMarble();            // pick a marble
+  const result = bet * MULTIPLIERS[drawn];  // calc win/loss
   goldRemaining += result;
 
-  /* visual feedback */
+  // pick CSS class & flash color based on marble
   let cssClass, bgColor;
-  switch(drawn){
+  switch (drawn) {
     case "green":
-      cssClass="win-green";  bgColor="#1b5e20"; spawnConfetti(40);         break;
+      cssClass = "win-green"; bgColor = "#1b5e20"; spawnConfetti(40);
+      break;
     case "black":
-      cssClass="win-black";  bgColor="#0d2919"; spawnConfetti(90);         break;
+      cssClass = "win-black"; bgColor = "#0d2919"; spawnConfetti(90);
+      break;
     case "red":
-      cssClass="lose-red";   bgColor="#7a1f1f";         break;
+      cssClass = "lose-red"; bgColor = "#7a1f1f";
+      break;
     case "white":
-      cssClass="lose-white"; bgColor="#3b1515";         break;
+      cssClass = "lose-white"; bgColor = "#3b1515";
+      break;
   }
-  flashBG(bgColor);
+  flashBG(bgColor); // flash screen
 
-  const outcome = result>0
+  // message for log
+  const outcome = result > 0
     ? `won <strong>${result}</strong>`
     : `lost <strong>${-result}</strong>`;
-
-  log(`Draw ${drawIndex}/${drawsTotal}: Marble is <em>${drawn}</em>. You ${outcome}. Gold left: ${goldRemaining}.`, cssClass);
+  log(
+    `Draw ${drawIndex}/${drawsTotal}: Marble is <em>${drawn}</em>. You ${outcome}. Gold left: ${goldRemaining}.`,
+    cssClass
+  );
   drawIndex++;
 
-  /* End-game checks */
-  if(goldRemaining <= goldStart/2){
+  // end-game conditions
+  if (goldRemaining <= goldStart/2) {
     statusEl.textContent = "💀 Less than half your gold remains. You lose!";
     showFlashMessage("GAME OVER", "#ff3b3b");
     endGame();
-  }else if(drawIndex > drawsTotal){
+  } else if (drawIndex > drawsTotal) {
     const diff = goldRemaining - goldStart;
-    statusEl.textContent = diff>0
+    statusEl.textContent = diff > 0
       ? `🎉 You finished up ${diff} gold!`
-      : diff<0
+      : diff < 0
         ? `😬 You finished down ${-diff} gold`
         : `😶 You broke even.`;
     showFlashMessage("FINISH!", "#ffd700");
     endGame();
   }
 
-  betInput.value="";
-  betInput.focus();
+  betInput.value = "";  // clear input for next round
+  betInput.focus();      // keep focus there
 }
+betBtn.onclick = playRound;   // wire button
+betInput.addEventListener("keydown", e => {
+  if (e.key === "Enter") playRound(); // allow Enter key
+});
 
-function endGame(){
+/* --------------------------------------------------
+   11. Exit or reset
+-------------------------------------------------- */
+function endGame() {
   bettingSection.classList.add("hidden");
   setupSection.classList.remove("hidden");
 }
+exitBtn.onclick = endGame;     // wire exit button
