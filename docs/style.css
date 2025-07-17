@@ -1,84 +1,119 @@
-/* RESET margins & padding on everything */
+/* ==========================================================================
+   RESET DEFAULT STYLES
+   ========================================================================== */
+/* Remove default padding/margin and use border-box sizing everywhere */
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+  box-sizing: border-box;  /* include padding/border in element’s total width/height */
+  margin: 0;                /* remove default margins */
+  padding: 0;               /* remove default padding */
 }
 
-/* FUN background on body */
+/* ==========================================================================
+   BODY & BACKGROUND
+   ========================================================================== */
+/* Sets up the page background, font, and centers the main card */
 body {
-  font-family: system-ui, Roboto, sans-serif; /* fallback fonts */
+  font-family: system-ui, Roboto, sans-serif;   /* fallback fonts for text */
+  /* Layer a pastel gradient under a graffiti texture */
   background:
-    radial-gradient(circle at 20% 20%, #d9cff0 0%, #d9cff0 60%), /* pastel purple */
-    url("https://www.transparenttextures.com/patterns/graffiti.png"); /* texture */
-  background-blend-mode: overlay; /* mix gradient + texture */
-  color: #eee;                     /* light text */
-  display: flex;
-  justify-content: center;         /* center the card */
-  padding: 5rem;                   /* space around */
-  overflow-x: hidden;              /* no horizontal scroll */
-  transition: background 0.25s;    /* for flash effect */
+    radial-gradient(circle at 20% 20%, #d9cff0 0%, #d9cff0 60%),
+    url("https://www.transparenttextures.com/patterns/graffiti.png");
+  background-blend-mode: overlay;  /* mix gradient + texture nicely */
+  color: #eee;                     /* default text color */
+  display: flex;                   /* center container horizontally */
+  justify-content: center;         /* center container vertically */
+  padding: 5rem;                   /* space around the card */
+  overflow-x: hidden;              /* prevent horizontal scrollbar */
+  transition: background 0.25s;    /* smooth color flashes */
 }
 
-/* CARD wrapper */
+/* ==========================================================================
+   MAIN CARD CONTAINER
+   ========================================================================== */
+/* Styles the central “card” that holds the game UI */
 .container {
-  width: 420px;
-  max-width: 90vw;                 /* adapt on small screens */
-  background: #08042b;             /* dark purple */
-  border-radius: 1rem;
-  padding: 2rem;
-  box-shadow: 0 0 25px rgba(255, 215, 0, 0.35); /* glow */
-  text-align: center;
+  width: 420px;                     /* fixed width for desktop */
+  max-width: 90vw;                  /* shrink on smaller screens */
+  background: #08042b;              /* dark purple background */
+  border-radius: 1rem;              /* rounded corners */
+  padding: 2rem;                    /* inner spacing */
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.35); /* soft gold glow */
+  text-align: center;               /* center text inside */
 }
 
-/* MAIN HEADER style */
+/* ==========================================================================
+   HEADER
+   ========================================================================== */
+/* Big neon-style game title */
 h1 {
-  font-family: "Bungee Shade", "Luckiest Guy", cursive;
-  font-size: 2rem;
-  word-spacing: 0.2em;
-  color: #ffbb00;                  /* gold */
-  text-shadow: 0 0 3px #f5d742, 0 0 5px #ffbb00;
-  margin-bottom: 1.5rem;
+  font-family: "Bungee Shade", "Luckiest Guy", cursive; /* fun casino fonts */
+  font-size: 2rem;                 /* size of the title */
+  color: #ffbb00;                   /* bright gold color */
+  text-shadow:
+    0 0 3px #f5d742,
+    0 0 5px #ffbb00;               /* glow effect */
+  margin-bottom: 1.5rem;           /* space below title */
 }
 
-/* FORM labels & inputs */
+/* ==========================================================================
+   INTRO TEXT
+   ========================================================================== */
+/* A friendly welcome message above the inputs */
+.intro {
+  font-size: 1rem;                 /* normal paragraph size */
+  margin-bottom: 2rem;             /* space before the first input */
+  color: #ffd700;                  /* gold-ish text */
+}
+
+/* ==========================================================================
+   FORM LABELS & INPUTS
+   ========================================================================== */
+/* Wraps label text and input in a column layout */
 label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;                    /* space between text & input */
-  margin-bottom: 1rem;
-  font-weight: 600;
-  color: #ffd700;
-}
-input {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #555;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  background: #2b2b44;
-  color: #fff;
+  display: flex;                   /* flex container for label+input */
+  flex-direction: column;          /* stack label text above input */
+  gap: 0.25rem;                    /* small gap between text & field */
+  margin-bottom: 1rem;             /* space to next item */
+  font-weight: 600;                /* slightly bold text */
+  color: #ffd700;                  /* gold text color */
 }
 
-/* BUTTON basics */
-button {
-  padding: 0.6rem 1rem;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  background: #4c6ef5;
-  color: #fff;
-  transition: background 0.15s, transform 0.1s;
+/* Styles for all number inputs */
+input[type="number"] {
+  padding: 0.5rem 0.75rem;         /* inner spacing for comfort */
+  border: 1px solid #555;          /* subtle border */
+  border-radius: 0.5rem;           /* rounded corners */
+  font-size: 1rem;                 /* legible text inside */
+  background: #2b2b44;             /* dark background for fields */
+  color: #fff;                     /* white text */
 }
+
+/* ==========================================================================
+   BUTTONS
+   ========================================================================== */
+/* Base button styles */
+button {
+  padding: 0.6rem 1rem;            /* clickable area */
+  border: none;                    /* remove default border */
+  border-radius: 0.5rem;           /* rounded corners */
+  font-size: 1rem;                 /* readable text */
+  font-weight: 700;                /* bold labels */
+  cursor: pointer;                 /* pointer on hover */
+  background: #4c6ef5;             /* primary button color */
+  color: #fff;                     /* white text */
+  transition: background 0.15s, transform 0.1s; /* hover/active effects */
+}
+
+/* Hover & active states for default buttons */
 button:hover {
   background: #5d7dff;
 }
 button:active {
   background: #3d55e0;
-  transform: scale(0.97);
+  transform: scale(0.97);          /* slight shrink on click */
 }
-/* secondary button variant */
+
+/* Secondary (“Exit Game”) button variant */
 button.secondary {
   background: #666;
   color: #eee;
@@ -90,32 +125,58 @@ button.secondary:active {
   background: #555;
 }
 
-/* FLASH overlay */
+/* ==========================================================================
+   SETUP SECTION LAYOUT UTILITY
+   ========================================================================== */
+/* Optional: ensures setup inputs & button are neatly stacked & centered */
+#setup {
+  display: flex;                   /* layout children in a column */
+  flex-direction: column;          /* one element per row */
+  align-items: center;             /* center them horizontally */
+  gap: 1.5rem;                     /* space between each row */
+}
+
+/* Constrain width of labels & buttons in setup */
+#setup label,
+#setup button,
+.intro {
+  width: 100%;
+  max-width: 320px;                /* won’t stretch too wide */
+}
+
+/* ==========================================================================
+   FLASH OVERLAY (GAME OVER / FINISH)
+   ========================================================================== */
+/* Full-screen semi-transparent overlay */
 .flash {
-  position: fixed;
-  inset: 0;                         /* top/right/bottom/left = 0 */
-  display: flex;
+  position: fixed;                 /* stay on top of everything */
+  top: 0; right: 0; bottom: 0; left: 0;
+  display: flex;                   /* center content inside */
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.5);   /* semi-dark backdrop */
-  z-index: 1000;
-  opacity: 0;
-  pointer-events: none;             /* clicks pass through */
-  transition: opacity 0.25s;
+  background: rgba(0, 0, 0, 0.5);  /* dark backdrop */
+  z-index: 1000;                   /* above all UI */
+  opacity: 0;                      /* hidden by default */
+  pointer-events: none;            /* clicks pass through */
+  transition: opacity 0.25s;       /* fade in/out smoothly */
 }
 .flash.show {
-  opacity: 1;
-  pointer-events: auto;
+  opacity: 1;                      /* visible */
+  pointer-events: auto;            /* capture clicks */
 }
+
+/* Overlay text style */
 .flash-content span {
   font-family: "Bungee Shade", "Luckiest Guy", cursive;
-  font-size: 3rem;
+  font-size: 3rem;                 /* big “GAME OVER” or “FINISH!” */
   display: block;
-  margin-bottom: 1rem;
+  margin-bottom: 1rem;             /* space before button */
 }
+
+/* Play Again button inside overlay */
 #playAgainBtn {
   background: #ffbb00;
-  color: #000;
+  color: #000;                     /* black text on gold */
   padding: 0.5rem 1.5rem;
   font-size: 1.2rem;
 }
@@ -126,46 +187,69 @@ button.secondary:active {
   background: #e6a800;
 }
 
-/* Utility to hide things */
-.hidden {
-  display: none;
-}
-
-/* LOG area styling */
+/* ==========================================================================
+   LOG AREA
+   ========================================================================== */
+/* Scrollable box where each round’s result appears */
 #log {
-  margin-top: 1.5rem;
-  max-height: 260px;
-  overflow-y: auto;
-  border-top: 2px solid #444;
-  padding-top: 1rem;
+  margin-top: 2rem;                /* space above log area */
+  max-height: 260px;               /* fixed height with scroll */
+  overflow-y: auto;                /* scroll if content overflows */
+  border-top: 2px solid #444;      /* separator line */
+  padding-top: 1rem;               /* space below separator */
 }
 #log p {
-  margin-bottom: 1rem;
-  line-height: 1.4;
-  animation: fadeIn 0.3s;
+  margin-bottom: 1rem;             /* space between log entries */
+  line-height: 1.4;                /* easier reading */
+  animation: fadeIn 0.3s;          /* subtle fade-in for each entry */
 }
 
-/* WIN/LOSE line backgrounds */
-.win-green  { background: #1b5e20; border-left: 5px solid #2ecc71; padding-left: 0.5rem; }
-.win-black  { background: #0d2919; border-left: 5px solid #00b34d; padding-left: 0.5rem; }
-.lose-red   { background: #7a1f1f; border-left: 5px solid #e74c3c; padding-left: 0.5rem; }
-.lose-white { background: #3b1515; border-left: 5px solid #ff3b3b; padding-left: 0.5rem; }
+/* ==========================================================================
+   WIN / LOSE LINE STYLES
+   ========================================================================== */
+/* Green win */
+.win-green {
+  background: #1b5e20;
+  border-left: 5px solid #2ecc71;
+  padding-left: 0.5rem;
+}
+/* Black win */
+.win-black {
+  background: #0d2919;
+  border-left: 5px solid #00b34d;
+  padding-left: 0.5rem;
+}
+/* Red loss */
+.lose-red {
+  background: #7a1f1f;
+  border-left: 5px solid #e74c3c;
+  padding-left: 0.5rem;
+}
+/* White loss */
+.lose-white {
+  background: #3b1515;
+  border-left: 5px solid #ff3b3b;
+  padding-left: 0.5rem;
+}
 
-/* CONFETTI pieces */
+/* ==========================================================================
+   CONFETTI & RAIN EFFECTS
+   ========================================================================== */
+/* Tiny confetti pieces */
 .confetti {
-  position: fixed;
-  z-index: 999;
-  pointer-events: none;
+  position: fixed;                 /* float above everything */
+  z-index: 999;                    /* just below overlay */
+  pointer-events: none;            /* clicks pass through */
   animation: confScatter 1.5s ease-out forwards;
 }
 
-/* optional rain effect */
+/* Optional rain effect (not used by default) */
 .rain {
   position: fixed;
-  top: -2rem;
+  top: -2rem;                      /* start above viewport */
   width: 3px;
   height: 22px;
-  background: #5dade2;
+  background: #5dade2;             /* blue raindrop */
   opacity: 0.75;
   z-index: 998;
   pointer-events: none;
@@ -173,11 +257,22 @@ button.secondary:active {
   animation: rainFall var(--dur) linear forwards;
 }
 
-/* Animations */
+/* ==========================================================================
+   KEYFRAME ANIMATIONS
+   ========================================================================== */
+/* Confetti scattering */
 @keyframes confScatter {
-  from { transform: translate(-50%, -50%) rotate(0deg); opacity: 1; }
-  to   { transform: translate(var(--dx), var(--dy)) rotate(720deg); opacity: 0; }
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+    opacity: 1;
+  }
+  to {
+    transform: translate(var(--dx), var(--dy)) rotate(720deg);
+    opacity: 0;
+  }
 }
+
+/* Rain falling */
 @keyframes rainFall {
   to {
     transform:
@@ -186,6 +281,8 @@ button.secondary:active {
     opacity: 0;
   }
 }
+
+/* Fade-in for log entries */
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
