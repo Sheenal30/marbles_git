@@ -3,13 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+
   <title>Marble Betting Game</title>
+
+  <!-- ✨ Fancy “casino” font -->
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+
+  <!-- Main stylesheet -->
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
   <div class="container">
-    <h1>🎲 Marble Betting Game</h1>
+    <h1>🎰 Marble Betting Game</h1>
 
     <!-- ❶ SETUP SCREEN -->
     <section id="setup">
@@ -32,53 +38,77 @@
 
       <label>
         Bet amount:
-        <input type="number" id="bet" min="1" />
+        <!-- ⬆️ step="50" makes ▲▼ change by 50 -->
+        <input type="number" id="bet" min="50" step="50" />
       </label>
 
-      <button id="betBtn">Place Bet</button>
+      <button id="betBtn">Place Bet ⏎</button>
       <button id="exitBtn" class="secondary">Exit Game</button>
     </section>
 
-    <!-- ❸ LOG -->
+    <!-- ❸ GAME LOG -->
     <section id="log"></section>
   </div>
 
-  <!-- ========= GAME LOGIC (unchanged except for colour classes) ========= -->
+  <!-- ========= GAME LOGIC & EFFECTS ========= -->
   <script>
+    /* --------------------------------------------------
+       Basic data
+    -------------------------------------------------- */
     const BAG = [
       ...Array(3).fill("red"),
       ...Array(5).fill("green"),
       "black",
       "white",
     ];
-
     const MULTIPLIERS = { green: 2, red: -1, black: 10, white: -5 };
 
-    /* DOM refs */
-    const setupSection  = document.getElementById("setup");
-    const bettingSection= document.getElementById("betting");
-    const startBtn      = document.getElementById("startBtn");
-    const betBtn        = document.getElementById("betBtn");
-    const exitBtn       = document.getElementById("exitBtn");
-    const statusEl      = document.getElementById("status");
-    const logEl         = document.getElementById("log");
+    /* --------------------------------------------------
+       DOM references
+    -------------------------------------------------- */
+    const $ = (id) => document.getElementById(id);
+    const setupSection   = $("setup");
+    const bettingSection = $("betting");
+    const startBtn       = $("startBtn");
+    const betBtn         = $("betBtn");
+    const exitBtn        = $("exitBtn");
+    const statusEl       = $("status");
+    const logEl          = $("log");
+    const betInput       = $("bet");
 
-    /* Game state */
+    /* --------------------------------------------------
+       Game state
+    -------------------------------------------------- */
     let goldStart, goldRemaining, drawsTotal, drawIndex = 0;
 
-    /* Helper: write a coloured line to #log */
-    const log = (msg, type="info") => {
-      logEl.innerHTML += `<p class="${type}">${msg}</p>`;
-      logEl.scrollTop = logEl.scrollHeight;   // auto-scroll to latest
+    /* --------------------------------------------------
+       Helpers
+    -------------------------------------------------- */
+    const randomMarble = () => BAG[Math.floor(Math.random()*BAG.length)];
+    const log = (msg, cssClass) => {
+      logEl.innerHTML += `<p class="${cssClass}">${msg}</p>`;
+      logEl.scrollTop = logEl.scrollHeight; // auto-scroll
     };
 
-    const randomMarble = () => BAG[Math.floor(Math.random()*BAG.length)];
+    /* Little utility to spawn many elements with animation */
+    function spawnParticles(count, className){
+      for(let i=0;i<count;i++){
+        const el = document.createElement("div");
+        el.className = className;
+        el.style.left = Math.random()*100 + "vw";                // random x-pos
+        el.style.animationDelay = Math.random()*0.5 + "s";       // slight spread
+        document.body.appendChild(el);
+        setTimeout(()=>el.remove(), 2000);                       // clean up
+      }
+    }
 
-    /* Start new game */
+    /* --------------------------------------------------
+       Event wiring
+    -------------------------------------------------- */
     startBtn.onclick = () => {
-      goldStart   = Number(document.getElementById("startGold").value);
-      drawsTotal  = Number(document.getElementById("draws").value);
-      if (!goldStart || !drawsTotal) return alert("Enter valid numbers!");
+      goldStart  = Number($("startGold").value);
+      drawsTotal = Number($("draws").value);
+      if(!goldStart || !drawsTotal) return alert("Enter valid numbers!");
 
       goldRemaining = goldStart;
       drawIndex     = 1;
@@ -87,12 +117,24 @@
 
       setupSection.classList.add("hidden");
       bettingSection.classList.remove("hidden");
+      betInput.focus();
     };
 
-    /* Play one round */
-    betBtn.onclick = () => {
-      const bet = Number(document.getElementById("bet").value);
-      if (!bet || bet > goldRemaining || bet <= 0) {
+    betBtn.onclick = playRound;
+
+    /* ⏎ ENTER also triggers Place Bet */
+    betInput.addEventListener("keydown", e=>{
+      if(e.key==="Enter") playRound();
+    });
+
+    exitBtn.onclick = endGame;
+
+    /* --------------------------------------------------
+       Main round function
+    -------------------------------------------------- */
+    function playRound(){
+      const bet = Number(betInput.value);
+      if(!bet || bet > goldRemaining || bet <= 0){
         return alert("Invalid bet amount.");
       }
 
@@ -100,31 +142,39 @@
       const result = bet * MULTIPLIERS[drawn];
       goldRemaining += result;
 
-      const outcome = result > 0
+      /* Decide colours & particle effect ------------- */
+      let cssClass, particleClass, particleCount;
+      switch(drawn){
+        case "green": cssClass="win-green";  particleClass="confetti"; particleCount=30; break;
+        case "black": cssClass="win-black";  particleClass="confetti"; particleCount=80; break;
+        case "red":   cssClass="lose-red";   particleClass="rain";     particleCount=20; break;
+        case "white": cssClass="lose-white"; particleClass="rain";     particleCount=60; break;
+      }
+      spawnParticles(particleCount, particleClass);
+
+      const outcome = result>0
         ? `won <strong>${result}</strong>`
         : `lost <strong>${-result}</strong>`;
 
-      const cssClass = result > 0 ? "win" : "lose";
       log(`Draw ${drawIndex}/${drawsTotal}: Marble is <em>${drawn}</em>. You ${outcome}. Gold left: ${goldRemaining}.`, cssClass);
-
       drawIndex++;
 
-      /* End-game checks */
-      if (goldRemaining <= goldStart/2) {
+      /* End-game checks ----------------------------- */
+      if(goldRemaining <= goldStart/2){
         statusEl.textContent = "💀 Less than half your gold remains. You lose!";
         endGame();
-      } else if (drawIndex > drawsTotal) {
+      }else if(drawIndex > drawsTotal){
         const diff = goldRemaining - goldStart;
-        statusEl.textContent = diff > 0
+        statusEl.textContent = diff>0
           ? `🎉 You finished up ${diff} gold!`
-          : diff < 0
+          : diff<0
             ? `😬 You finished down ${-diff} gold`
             : `😶 You broke even.`;
         endGame();
       }
-    };
-
-    exitBtn.onclick = endGame;
+      betInput.value="";
+      betInput.focus();
+    }
 
     function endGame(){
       bettingSection.classList.add("hidden");
