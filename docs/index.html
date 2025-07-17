@@ -1,62 +1,80 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html> <!-- Tell browser this is HTML5 -->
+<html lang="en"> <!-- Root element; lang helps screen readers & SEO -->
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Marble Betting Game</title>
+  <meta charset="UTF-8" /> <!-- Character set so special symbols show up -->
+  <meta name="viewport" content="width=device-width,initial-scale=1" /> <!-- Mobile-friendly scaling -->
+  <title>Marble Betting Game</title> <!-- Tab title -->
 
-  <!-- Casino fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bungee+Shade&display=swap" rel="stylesheet">
+  <!-- Casino-style fonts from Google -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bungee+Shade&display=swap"
+    rel="stylesheet"
+  />
 
-  <!-- Styles -->
+  <!-- Link to your CSS file -->
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-  <div class="container">
-    <h1>🎰 Marble Betting Game</h1>
+  <div class="container"> <!-- Main card wrapper -->
+    <h1>🎰 Marble Betting Game</h1> <!-- Big header -->
 
-    <!-- ❶ SETUP -->
+    <!-- SETUP: where you pick starting values -->
     <section id="setup">
       <label>
         Starting gold:
-        <input type="number" id="startGold" min="1" value="1000" />
+        <input
+          type="number"    <!-- numeric input -->
+          id="startGold"   <!-- JS hooks onto this -->
+          min="1"          <!-- can’t go below 1 -->
+          value="1000"     <!-- default starting gold -->
+        />
       </label>
 
       <label>
         Number of draws:
-        <input type="number" id="draws" min="1" value="5" />
+        <input
+          type="number"
+          id="draws"       <!-- JS reads how many turns -->
+          min="1"
+          value="5"        <!-- default number of draws -->
+        />
       </label>
 
-      <button id="startBtn">Start Game ⏎</button>
+      <button id="startBtn">Start Game ⏎</button> <!-- JS clicks this to begin -->
     </section>
 
-    <!-- ❷ BETTING -->
+    <!-- BETTING: only shows once setup is done -->
     <section id="betting" class="hidden">
-      <p id="status"></p>
+      <p id="status"></p> <!-- JS writes current gold & messages here -->
 
       <label>
         Bet amount:
-        <input type="number" id="bet" min="50" step="50" />
+        <input
+          type="number"
+          id="bet"        <!-- user’s current bet -->
+          min="50"        <!-- smallest bet -->
+          step="50"       <!-- increments of 50 -->
+        />
       </label>
 
-      <button id="betBtn">Place Bet ⏎</button>
-      <button id="exitBtn" class="secondary">Exit Game</button>
+      <button id="betBtn">Place Bet ⏎</button> <!-- JS handles round -->
+      <button id="exitBtn" class="secondary">Exit Game</button> <!-- bail out -->
     </section>
 
-    <!-- ❸ LOG -->
+    <!-- LOG: shows each draw’s outcome -->
     <section id="log"></section>
   </div>
 
-  <!-- ❹ FULL-SCREEN FLASH OVERLAY -->
+  <!-- FULL-SCREEN OVERLAY for Game Over / Finish -->
   <div id="flashMessage" class="flash hidden">
     <div class="flash-content">
-      <span id="flashText"></span>
-      <button id="playAgainBtn">Play Again</button>
+      <span id="flashText"></span>        <!-- “GAME OVER” or “FINISH!” -->
+      <button id="playAgainBtn">Play Again</button> <!-- hide overlay & reset -->
     </div>
   </div>
 
-  <!-- Game logic -->
-  <script src="./script.js"></script>
+  <!-- Link to your JS logic -->
+  <script src="script.js"></script>
 </body>
 </html>

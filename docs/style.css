@@ -1,124 +1,221 @@
-/* RESET
-   -------------------------------------------------- */
-*{box-sizing:border-box;margin:0;padding:0;}
+/* --------------------------------------------------
+   1. Marble bag & multipliers
+-------------------------------------------------- */
+// array of marbles: 3 red, 5 green, 1 black, 1 white
+const BAG = [
+  ...Array(3).fill("red"),
+  ...Array(5).fill("green"),
+  "black",
+  "white",
+];
+// how much you win/lose per color
+const MULTIPLIERS = {
+  green: 2,  // double your bet
+  red: -1,   // lose your bet
+  black: 10, // huge win
+  white: -5, // big loss
+};
 
-/* FUN GRAFFITI BACKGROUND (gradient + transparent texture) */
-body{
-  font-family:system-ui,Roboto,sans-serif;
-  background:
-    radial-gradient(circle at 20% 20%,#d9cff0 0%,#d9cff0 60%),          /* pastel purple */
-    url("https://www.transparenttextures.com/patterns/graffiti.png"); /* free graffiti texture */
-  background-blend-mode:overlay;      /* mix gradient + texture */
-  color:#eee;
-  display:flex;justify-content:center;
-  padding:5rem;
-  overflow-x:hidden;
-  transition:background 0.25s;
-}
+/* --------------------------------------------------
+   2. DOM helpers (grab elements once)
+-------------------------------------------------- */
+const $ = (id) => document.getElementById(id);
+const setupSection   = $("setup");       // where you set gold/draws
+const bettingSection = $("betting");     // betting interface
+const startBtn       = $("startBtn");    // “Start Game” button
+const betBtn         = $("betBtn");      // “Place Bet” button
+const exitBtn        = $("exitBtn");     // “Exit Game” button
+const statusEl       = $("status");      // status text
+const logEl          = $("log");         // log output area
+const betInput       = $("bet");         // bet input field
+const flashEl        = $("flashMessage"); // overlay div
+const flashText      = $("flashText");   // overlay text
+const playAgainBtn   = $("playAgainBtn");// button to restart
+const startGoldInput = $("startGold");   // input for starting gold
+const drawsInput     = $("draws");       // input for number of draws
 
-/* CARD */
-.container{
-  width:420px;max-width:90vw;
-  background:#08042b;
-  border-radius:1rem;
-  padding:2rem;
-  box-shadow:0 0 25px rgba(255,215,0,0.35);
-  text-align:center;
-}
+/* --------------------------------------------------
+   3. Game state variables
+-------------------------------------------------- */
+let goldStart, goldRemaining, drawsTotal, drawIndex = 0;
+// remember original background for flash effect
+const baseBG = getComputedStyle(document.body).background;
 
-/* HEADING */
-h1{
-  font-family:"Bungee Shade","Luckiest Guy",cursive;
-  font-size:2rem;
-  word-spacing:0.2em;
-  color:#ffbb00;
-  text-shadow:0 0 3px #f5d742,0 0 5px #ffbb00;
-  margin-bottom:1.5rem;
-}
+/* --------------------------------------------------
+   4. Utility: pick random marble
+-------------------------------------------------- */
+const randomMarble = () =>
+  BAG[Math.floor(Math.random() * BAG.length)];
 
-/* FORM */
-label{
-  display:flex;flex-direction:column;gap:0.25rem;
-  margin-bottom:1rem;
-  font-weight:600;color:#ffd700;
-}
-input{
-  padding:0.5rem 0.75rem;border:1px solid #555;border-radius:0.5rem;
-  font-size:1rem;background:#2b2b44;color:#fff;
-}
+/* --------------------------------------------------
+   5. Logging helper
+-------------------------------------------------- */
+const log = (msg, cls) => {
+  // append a <p> with message + CSS class, then scroll to bottom
+  logEl.innerHTML += `<p class="${cls}">${msg}</p>`;
+  logEl.scrollTop = logEl.scrollHeight;
+};
 
-/* BUTTONS */
-button{
-  padding:0.6rem 1rem;border:none;border-radius:0.5rem;
-  font-size:1rem;font-weight:700;cursor:pointer;
-  background:#4c6ef5;color:#fff;
-  transition:background 0.15s,transform 0.1s;
-}
-button:hover{background:#5d7dff;}
-button:active{background:#3d55e0;transform:scale(0.97);}
-button.secondary{background:#666;color:#eee;}
-button.secondary:hover{background:#777;}
-button.secondary:active{background:#555;}
-
-/* FLASH OVERLAY */
-.flash{
-  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
-  background:rgba(0,0,0,0.5);z-index:1000;opacity:0;pointer-events:none;
-  transition:opacity 0.25s;
-}
-.flash.show{opacity:1;pointer-events:auto;}
-.flash-content{text-align:center;}
-.flash-content span{
-  font-family:"Bungee Shade","Luckiest Guy",cursive;
-  font-size:3rem;display:block;margin-bottom:1rem;
-}
-#playAgainBtn{
-  background:#ffbb00;color:#000;padding:0.5rem 1.5rem;font-size:1.2rem;
-}
-#playAgainBtn:hover{background:#ffd84d;}
-#playAgainBtn:active{background:#e6a800;}
-
-/* HIDE UTILITY */
-.hidden{display:none;}
-
-/* LOG AREA */
-#log{margin-top:1.5rem;max-height:260px;overflow-y:auto;border-top:2px solid #444;padding-top:1rem;}
-#log p{margin-bottom:1rem;line-height:1.4;animation:fadeIn 0.3s}
-
-/* WIN / LOSE LINE COLOURS */
-.win-green {background:#1b5e20;border-left:5px solid #2ecc71;padding-left:0.5rem;}
-.win-black {background:#0d2919;border-left:5px solid #00b34d;padding-left:0.5rem;}
-.lose-red {background:#7a1f1f;border-left:5px solid #e74c3c;padding-left:0.5rem;}
-.lose-white{background:#3b1515;border-left:5px solid #ff3b3b;padding-left:0.5rem;}
-
-/* CONFETTI & RAIN */
-.confetti{
-  position:fixed;z-index:999;pointer-events:none;
-  animation:confScatter 1.5s ease-out forwards;
-}
-.rain{
-  position:fixed;           /* fall across viewport */
-  top:-2rem;                /* spawn slightly above screen */
-  width:3px; height:22px;   /* thicker, longer streak */
-  background:#5dade2;       /* blue drop */
-  opacity:0.75;
-  z-index:998;              /* below confetti, above card */
-  pointer-events:none;      /* ignore clicks */
-  transform:rotate(18deg);  /* slanted look */
-  animation:rainFall var(--dur) linear forwards;
+/* --------------------------------------------------
+   6. Flash background color
+-------------------------------------------------- */
+function flashBG(color) {
+  const body = document.body;
+  body.style.transition = "background 0.25s";
+  body.style.background = color;          // flash color
+  setTimeout(() => {
+    body.style.background = baseBG;       // back to normal
+  }, 800);
 }
 
-/* keyframes */
-@keyframes confScatter{
-  from{transform:translate(-50%,-50%) rotate(0deg);opacity:1;}
-  to  {transform:translate(var(--dx),var(--dy)) rotate(720deg);opacity:0;}
+/* --------------------------------------------------
+   7. Show overlay for end/game over
+-------------------------------------------------- */
+function showFlashMessage(text, color) {
+  flashText.textContent = text;           // set “GAME OVER” etc
+  flashText.style.color = color;          // color of text
+  flashEl.classList.remove("hidden");     // reveal overlay
+  flashEl.classList.add("show");
+  // focus the Play Again button so Enter works
+  setTimeout(() => {
+    playAgainBtn.focus();
+  }, 200);
 }
-@keyframes rainFall{
-  to{
-    transform:
-      translate(var(--dx), 100vh)   /* drift sideways as it drops */
-      rotate(18deg);                /* maintain slant */
-    opacity:0;
+// hide overlay and reset focus when clicked
+playAgainBtn.onclick = () => {
+  flashEl.classList.add("hidden");
+  flashEl.classList.remove("show");
+  startGoldInput.focus();
+};
+
+/* --------------------------------------------------
+   8. Particle effects: confetti
+-------------------------------------------------- */
+const CONFETTI_COLS = [
+  "#ff4757","#fffa65","#1e90ff","#2ed573",
+  "#ffa502","#ff6b81","#70a1ff","#7bed9f"
+];
+function spawnConfetti(count) {
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement("div");
+    el.className = "confetti";
+    const size = 6 + Math.random() * 10;
+    el.style.width = el.style.height = size + "px";
+    el.style.background =
+      CONFETTI_COLS[Math.floor(Math.random() * CONFETTI_COLS.length)];
+    el.style.left = "50vw";  // start center
+    el.style.top  = "50vh";
+    // random end position
+    const dx = (Math.random()*100 - 50) + "vw";
+    const dy = (Math.random()*100 - 50) + "vh";
+    el.style.setProperty('--dx', dx);
+    el.style.setProperty('--dy', dy);
+    if (Math.random() > 0.5) el.style.borderRadius = "50%";
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1800); // clean up
   }
 }
-@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+/* --------------------------------------------------
+   9. Game flow: startGame()
+-------------------------------------------------- */
+function startGame() {
+  goldStart  = Number(startGoldInput.value); // read inputs
+  drawsTotal = Number(drawsInput.value);
+  // basic validation
+  if (!goldStart || !drawsTotal)
+    return alert("Enter valid numbers!");
+
+  goldRemaining = goldStart;
+  drawIndex = 1;
+  logEl.innerHTML = "";                     // clear old log
+  statusEl.textContent = `You start with ${goldRemaining} gold.`;
+
+  // hide setup, show betting UI
+  setupSection.classList.add("hidden");
+  bettingSection.classList.remove("hidden");
+  betInput.focus();                         // jump to bet field
+}
+// wire up the Start button
+startBtn.onclick = startGame;
+// allow Enter key in inputs to also start
+[startGoldInput, drawsInput].forEach(inp => {
+  inp.addEventListener("keydown", e => {
+    if (e.key === "Enter") startGame();
+  });
+});
+
+/* --------------------------------------------------
+   10. Betting round: playRound()
+-------------------------------------------------- */
+function playRound() {
+  const bet = Number(betInput.value);       // how much user bets
+  // validation
+  if (!bet || bet > goldRemaining || bet <= 0) {
+    return alert("Invalid bet amount.");
+  }
+
+  const drawn  = randomMarble();            // pick a marble
+  const result = bet * MULTIPLIERS[drawn];  // calc win/loss
+  goldRemaining += result;
+
+  // pick CSS class & flash color based on marble
+  let cssClass, bgColor;
+  switch (drawn) {
+    case "green":
+      cssClass = "win-green"; bgColor = "#1b5e20"; spawnConfetti(40);
+      break;
+    case "black":
+      cssClass = "win-black"; bgColor = "#0d2919"; spawnConfetti(90);
+      break;
+    case "red":
+      cssClass = "lose-red"; bgColor = "#7a1f1f";
+      break;
+    case "white":
+      cssClass = "lose-white"; bgColor = "#3b1515";
+      break;
+  }
+  flashBG(bgColor); // flash screen
+
+  // message for log
+  const outcome = result > 0
+    ? `won <strong>${result}</strong>`
+    : `lost <strong>${-result}</strong>`;
+  log(
+    `Draw ${drawIndex}/${drawsTotal}: Marble is <em>${drawn}</em>. You ${outcome}. Gold left: ${goldRemaining}.`,
+    cssClass
+  );
+  drawIndex++;
+
+  // end-game conditions
+  if (goldRemaining <= goldStart/2) {
+    statusEl.textContent = "💀 Less than half your gold remains. You lose!";
+    showFlashMessage("GAME OVER", "#ff3b3b");
+    endGame();
+  } else if (drawIndex > drawsTotal) {
+    const diff = goldRemaining - goldStart;
+    statusEl.textContent = diff > 0
+      ? `🎉 You finished up ${diff} gold!`
+      : diff < 0
+        ? `😬 You finished down ${-diff} gold`
+        : `😶 You broke even.`;
+    showFlashMessage("FINISH!", "#ffd700");
+    endGame();
+  }
+
+  betInput.value = "";  // clear input for next round
+  betInput.focus();      // keep focus there
+}
+betBtn.onclick = playRound;   // wire button
+betInput.addEventListener("keydown", e => {
+  if (e.key === "Enter") playRound(); // allow Enter key
+});
+
+/* --------------------------------------------------
+   11. Exit or reset
+-------------------------------------------------- */
+function endGame() {
+  bettingSection.classList.add("hidden");
+  setupSection.classList.remove("hidden");
+}
+exitBtn.onclick = endGame;     // wire exit button
