@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Marble Betting Game</title>
+
+  <!-- Link to the external stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <h1>🎲 Marble Betting Game</h1>
+
+    <!-- ❶ SETUP SCREEN -->
+    <section id="setup">
+      <label>
+        Starting gold:
+        <input type="number" id="startGold" min="1" value="100" />
+      </label>
+
+      <label>
+        Number of draws:
+        <input type="number" id="draws" min="1" value="5" />
+      </label>
+
+      <button id="startBtn">Start Game</button>
+    </section>
+
+    <!-- ❷ BET SCREEN (hidden until game starts) -->
+    <section id="betting" class="hidden">
+      <p id="status"></p>
+
+      <label>
+        Bet amount:
+        <input type="number" id="bet" min="1" />
+      </label>
+
+      <button id="betBtn">Place Bet</button>
+      <button id="exitBtn" class="secondary">Exit Game</button>
+    </section>
+
+    <!-- ❸ LOG -->
+    <section id="log"></section>
+  </div>
+
+  <!-- Inline JS so you only need one file + CSS -->
+  <script>
+    /* ---------- MARBLE GAME LOGIC ---------- */
+    const BAG = [
+      ...Array(3).fill("red"),
+      ...Array(5).fill("green"),
+      "black",
+      "white",
+    ];
+
+    const MULTIPLIERS = {
+      green: 2,
+      red: -1,
+      black: 10,
+      white: -5,
+    };
+
+    /* ---------- DOM ELEMENTS ---------- */
+    const setupSection = document.getElementById("setup");
+    const bettingSection = document.getElementById("betting");
+    const startBtn = document.getElementById("startBtn");
+    const betBtn = document.getElementById("betBtn");
+    const exitBtn = document.getElementById("exitBtn");
+    const statusEl = document.getElementById("status");
+    const logEl = document.getElementById("log");
+
+    /* ---------- GAME STATE ---------- */
+    let goldStart,
+      goldRemaining,
+      drawsTotal,
+      drawIndex = 0;
+
+    /* ---------- HELPERS ---------- */
+    const log = (msg) => {
+      logEl.innerHTML += `<p>${msg}</p>`;
+      logEl.scrollTop = logEl.scrollHeight;
+    };
+
+    const randomMarble = () => BAG[Math.floor(Math.random() * BAG.length)];
+
+    /* ---------- EVENT HANDLERS ---------- */
+    startBtn.onclick = () => {
+      // Basic validation
+      goldStart = Number(document.getElementById("startGold").value);
+      drawsTotal = Number(document.getElementById("draws").value);
+      if (!goldStart || !drawsTotal) return alert("Enter valid numbers!");
+
+      goldRemaining = goldStart;
+      drawIndex = 1;
+      logEl.innerHTML = ""; // clear previous game
+      statusEl.textContent = `You start with ${goldRemaining} gold.`;
+
+      setupSection.classList.add("hidden");
+      bettingSection.classList.remove("hidden");
+    };
+
+    betBtn.onclick = () => {
+      const bet = Number(document.getElementById("bet").value);
+      if (!bet || bet > goldRemaining || bet <= 0) {
+        return alert("Invalid bet amount.");
+      }
+
+      /* Play one round */
+      const drawn = randomMarble();
+      const result = bet * MULTIPLIERS[drawn];
+      goldRemaining += result;
+
+      const outcome =
+        result > 0
+          ? `won <strong>${result}</strong>`
+          : `lost <strong>${-result}</strong>`;
+      log(
+        `Draw ${drawIndex}/${drawsTotal}: Marble is <em>${drawn}</em>. You ${outcome}. Gold left: ${goldRemaining}.`
+      );
+
+      drawIndex++;
+
+      /* End-game checks */
+      if (goldRemaining <= goldStart / 2) {
+        statusEl.textContent = "💀 Less than half your gold remains. You lose!";
+        endGame();
+      } else if (drawIndex > drawsTotal) {
+        const diff = goldRemaining - goldStart;
+        statusEl.textContent =
+          diff > 0
+            ? `🎉 You finished up ${diff} gold!`
+            : `😶 You finished with exactly what you started.`;
+        endGame();
+      }
+    };
+
+    exitBtn.onclick = endGame;
+
+    function endGame() {
+      bettingSection.classList.add("hidden");
+      setupSection.classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>
