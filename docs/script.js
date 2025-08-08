@@ -122,9 +122,15 @@ function spawnConfetti(count) {
 function startGame() {
   goldStart  = Number(startGoldInput.value); // read inputs
   drawsTotal = Number(drawsInput.value);
-  // basic validation
-  if (!goldStart || !drawsTotal)
+  // basic validation: ensure positive numbers were entered
+  if (
+    !Number.isFinite(goldStart) ||
+    !Number.isFinite(drawsTotal) ||
+    goldStart <= 0 ||
+    drawsTotal <= 0
+  ) {
     return alert("Enter valid numbers!");
+  }
 
   goldRemaining = goldStart;
   drawIndex = 1;
