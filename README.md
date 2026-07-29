@@ -54,7 +54,3 @@ marbles_git/
 ├── LICENSE.md
 └── README.md
 ```
-
-## License
-
-See [LICENSE.md](LICENSE.md).
